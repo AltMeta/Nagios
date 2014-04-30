@@ -1,0 +1,31 @@
+#!/bin/sh
+
+# Copyright (c) by Oliver Falk <oliver@linux-kernel.at>, 2012-2014
+# https://github.com/ofalk/Nagios/blob/master/check_csync2_by_ssh
+
+# Gary Ballantine, removed SSH references from original script
+# to run on local box and changed ouput to work with check_mk
+
+TMP_FILE=/tmp/chk_csync2
+
+rm -f ${TMP_FILE}
+
+which csync2 >/dev/null 2>&1
+if [ ! $? -eq 0 ]
+then
+        echo "2 check_csync2 host=csync2 is not installed"
+        exit 0
+fi
+
+csync2 -xvd > ${TMP_FILE} 2> /dev/null
+
+if [ -s ${TMP_FILE} ]
+then
+        echo -e "1 check_csync2 host=Changes found:\n`cat $TMP_FILE` | changes=`cat $TMP_FILE|wc -l`"
+        exit 1
+else
+        echo "0 check_csync2 host=OK: no changes found"
+        exit 0
+fi
+
+rm -f ${TMP_FILE}
